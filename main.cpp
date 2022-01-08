@@ -33,6 +33,35 @@ vector<int> getReachableCities(int start, int max_road_length, const vector<Poin
   return result;
 }
 
+void TestGetReachableCities() {
+  // FIXME
+  vector<Point> c{{0, 0}, {1, 1}, {3, -3}, {-4, -1}, {-5, 2}, {-4, 3}};
+  assert((vector<int>{}) == getReachableCities(0, 0, c));
+  assert((vector<int>{}) == getReachableCities(0, 1, c));
+  assert((vector<int>{1}) == getReachableCities(0, 2, c));
+  assert((vector<int>{1}) == getReachableCities(0, 3, c));
+  assert((vector<int>{1}) == getReachableCities(0, 4, c));
+  assert((vector<int>{1, 3}) == getReachableCities(0, 5, c));
+  assert((vector<int>{1, 2, 3}) == getReachableCities(0, 6, c));
+  assert((vector<int>{1, 2, 3, 4, 5}) == getReachableCities(0, 7, c));
+
+  assert((vector<int>{}) == getReachableCities(1, 0, c));
+  assert((vector<int>{}) == getReachableCities(1, 1, c));
+  assert((vector<int>{0}) == getReachableCities(1, 2, c));
+  assert((vector<int>{0}) == getReachableCities(1, 3, c));
+  assert((vector<int>{0}) == getReachableCities(1, 4, c));
+  assert((vector<int>{0}) == getReachableCities(1, 5, c));
+  assert((vector<int>{0,2}) == getReachableCities(1, 6, c));
+  assert((vector<int>{0,2,3,4,5}) == getReachableCities(1, 7, c));
+//  assert((vector<int>{0}) == getReachableCities(1, 5, c));
+
+
+  assert((vector<int>{}) == getReachableCities(2, 5, c));
+  assert((vector<int>{0, 4, 5}) == getReachableCities(3, 5, c));
+  assert((vector<int>{3, 5}) == getReachableCities(4, 5, c));
+  assert((vector<int>{3, 4}) == getReachableCities(5, 5, c));
+}
+
 int countMinRoads(int from, int to, int k, const vector<Point> &coordinates) {
   // FIXME Test #15: Wrong Answer
   queue<int> q;
@@ -40,14 +69,20 @@ int countMinRoads(int from, int to, int k, const vector<Point> &coordinates) {
   q.push(from);
   int level = 0;
   while (not q.empty()) {
+    clog << "level = "s << level << endl;
+    clog << "queue size = "s << q.size() << endl;
     int count = q.size();
     for (int i = 0; i < count; ++i) {
       int stop = q.front();
+      clog << "next stop = "s << stop << endl;
       q.pop();
       visited.insert(stop);
       if (distanceBetween(coordinates.at(stop), coordinates.at(to)) <= k) { return level + 1; }
       for (int intermediate: getReachableCities(stop, k, coordinates)) {
-        if (not visited.count(intermediate)) { q.push(intermediate); }
+        if (not visited.count(intermediate)) {
+          clog << intermediate << "is reachable"s << endl;
+          q.push(intermediate);
+        }
       }
     }
     ++level;
@@ -68,6 +103,20 @@ void TestCountMinRoads() {
   {
     vector<Point> coordinates{{0, 0}, {2, 0}, {0, 2}, {2, 2}};
     assert(-1 == countMinRoads(0, 3, 1, coordinates));
+  }
+  {
+    vector<Point> c{{0, 0}, {1, 1}, {3, -3}, {-4, -1}, {-5, 2}, {-4, 3}};
+    assert(-1 == countMinRoads(0, 3, 1, c));
+    assert(-1 == countMinRoads(0, 3, 2, c));
+    assert(-1 == countMinRoads(0, 3, 3, c));
+    assert(-1 == countMinRoads(0, 3, 4, c));
+    assert(1 == countMinRoads(0, 3, 5, c));
+
+    assert(3 == countMinRoads(1, 5, 5, c));
+    assert(3 == countMinRoads(1, 5, 6, c));
+    assert(1 == countMinRoads(1, 5, 7, c));
+
+    
   }
 }
 
@@ -98,7 +147,8 @@ void ProcessInput() {
 }
 
 int main() {
-  TestFindShortestPath();
+  TestGetReachableCities();
+//  TestCountMinRoads();
   cout << "Ok!"s << endl;
 //  ProcessInput();
   return 0;
